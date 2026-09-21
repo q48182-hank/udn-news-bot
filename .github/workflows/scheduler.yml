@@ -2,21 +2,16 @@ name: Run News Bot
 
 on:
   schedule:
-    # 台灣時間週一至週五 09:00 - 13:30 每 5 分鐘執行一次
-    - cron: '*/5 1-5 * * 1-5'
+    # 台灣時間週一至週五 09:00 - 13:30 每 1 分鐘執行一次
+    - cron: '* 1-5 * * 1-5'
   workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,11 +28,3 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           python bot.py
-
-      - name: Commit and push if changed
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          git add seen_news.txt
-          git diff --staged --quiet || (git commit -m "Update seen news" && git push)
